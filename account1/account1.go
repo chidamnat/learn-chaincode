@@ -131,6 +131,51 @@ func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) 
 
 	return valAsbytes, nil												
 }
+// ============================================================================================================================
+// Read - read a variable from chaincode world state
+// ============================================================================================================================
+func (t *SimpleChaincode) readAll(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	// var name, jsonResp string
+	// var err error
+
+	// if len(args) != 1 {
+	// 	return nil, errors.New("Incorrect number of arguments. Expecting name of the var to query")
+	// }
+
+	// name = args[0]
+	// valAsbytes, err := stub.GetState(name)	
+	// if err != nil {
+	// 	jsonResp = "{\"Error\":\"Failed to get state for " + name + "\"}"
+	// 	return nil, errors.New(jsonResp)
+	// }
+
+	// return valAsbytes, nil							
+
+	// trial
+	keysIter, err := stub.RangeQueryState("", "")
+		if err != nil {
+			return nil, fmt.Errorf("keys operation failed. Error accessing state: %s", err)
+		}
+		defer keysIter.Close()
+
+		var keys []string
+		//var total int
+		for keysIter.HasNext() {
+			key, _, iterErr := keysIter.Next()
+			if iterErr != nil {
+				return nil, fmt.Errorf("keys operation failed. Error accessing state: %s", err)
+			}
+			keys = append(keys, key)
+		}
+
+		jsonKeys, err := json.Marshal(keys)
+		if err != nil {
+			return nil, fmt.Errorf("keys operation failed. Error marshaling JSON: %s", err)
+		}
+
+		return jsonKeys, nil
+
+}
 
 // ============================================================================================================================
 // Delete - remove a key/value pair from the world state
